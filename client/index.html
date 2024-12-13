@@ -35,9 +35,12 @@
 
   <script src="https://observant-respect-production.up.railway.app/api/tracking.js"></script>
   <script>
-    window.onload = function () {
+    const script = document.createElement('script');
+    script.src = 'https://observant-respect-production.up.railway.app/api/tracking.js';
+    script.onload = function () {
       InsightFlow.init("cm4mx8oy20001rt0f35e1ut6v");
-    }
+    };
+    document.body.appendChild(script);
   </script>
 </body>
 
