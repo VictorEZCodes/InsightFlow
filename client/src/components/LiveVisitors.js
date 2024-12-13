@@ -1,3 +1,5 @@
+import config from '../config.js';
+
 export class LiveVisitors {
   constructor() {
     this.container = document.getElementById('live-visitors');
@@ -7,7 +9,7 @@ export class LiveVisitors {
   }
 
   setupWebSocket() {
-    this.ws = new WebSocket('ws://localhost:3000');
+    this.ws = new WebSocket(config.WS_URL);
 
     this.ws.onmessage = (event) => {
       const data = JSON.parse(event.data);

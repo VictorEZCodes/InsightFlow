@@ -1,3 +1,5 @@
+import config from '../config.js';
+
 export class WebsiteManager {
   constructor() {
     this.container = document.getElementById('website-section');
@@ -7,7 +9,7 @@ export class WebsiteManager {
   async deleteWebsite(websiteId) {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/analytics/websites/${websiteId}`, {
+      const response = await fetch(`${config.API_URL}/analytics/websites/${websiteId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -74,7 +76,7 @@ export class WebsiteManager {
   async loadWebsites() {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/analytics/dashboard', {
+      const response = await fetch(`${config.API_URL}/analytics/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -114,6 +116,12 @@ export class WebsiteManager {
 
     } catch (error) {
       console.error('Error loading websites:', error);
+      const websitesList = document.getElementById('websites-list');
+      websitesList.innerHTML = `
+        <div class="bg-red-50 text-red-600 p-4 rounded-lg">
+          Error loading websites
+        </div>
+      `;
     }
   }
 
@@ -132,7 +140,7 @@ export class WebsiteManager {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/analytics/websites', {
+        const response = await fetch(`${config.API_URL}/analytics/websites`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -165,11 +173,11 @@ window.websiteManager = new WebsiteManager();
 
 // Add copyTrackingCode function
 window.copyTrackingCode = async (websiteId) => {
-  const code = `<script src="http://localhost:3000/tracking.js"></script>
+  const code = `<script src="${config.API_URL}/tracking.js"></script>
 <script>
   InsightFlow.init("${websiteId}");
 </script>`;
-  
+
   try {
     await navigator.clipboard.writeText(code);
     alert('Tracking code copied to clipboard!');

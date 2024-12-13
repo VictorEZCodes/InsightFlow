@@ -1,9 +1,8 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api';
+import config from '../config.js';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: config.API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -38,4 +37,25 @@ export const analyticsAPI = {
 
   trackPageView: (websiteId, data) =>
     api.post(`/analytics/${websiteId}/pageview`, data),
+};
+
+// Add WebSocket connection
+export const initWebSocket = () => {
+  const ws = new WebSocket(config.WS_URL);
+
+  ws.onopen = () => {
+    console.log('WebSocket connected');
+  };
+
+  ws.onclose = () => {
+    console.log('WebSocket disconnected');
+    // Attempt to reconnect after 5 seconds
+    setTimeout(initWebSocket, 5000);
+  };
+
+  ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+  };
+
+  return ws;
 };

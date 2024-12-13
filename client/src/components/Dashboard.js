@@ -1,3 +1,6 @@
+import config from '../config.js';
+import Chart from 'chart.js/auto';
+
 export class Dashboard {
   constructor() {
     this.container = document.getElementById('dashboard-section');
@@ -17,7 +20,7 @@ export class Dashboard {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/analytics/dashboard', {
+      const response = await fetch(`${config.API_URL}/analytics/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -142,7 +145,7 @@ export class Dashboard {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false, // Allow custom height
+          maintainAspectRatio: false,
           scales: {
             y: {
               beginAtZero: true
@@ -164,7 +167,7 @@ export class Dashboard {
     if (dailyViewsCtx) {
       // Set a default height for empty charts
       if (!website.pageViews.length) {
-        dailyViewsCtx.style.height = '100px'; // Smaller height when empty
+        dailyViewsCtx.style.height = '100px';
       }
 
       const dailyData = this.aggregateDailyViews(website.pageViews);
@@ -180,7 +183,7 @@ export class Dashboard {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false, // Allow custom height
+          maintainAspectRatio: false,
           scales: {
             y: {
               beginAtZero: true
@@ -202,7 +205,7 @@ export class Dashboard {
     if (browsersCtx) {
       // Set a default height for empty charts
       if (!website.pageViews.length) {
-        browsersCtx.style.height = '100px'; // Smaller height when empty
+        browsersCtx.style.height = '100px';
       }
 
       const browserData = this.aggregateBrowserData(website.pageViews);
@@ -222,7 +225,7 @@ export class Dashboard {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false, // Allow custom height
+          maintainAspectRatio: false,
           plugins: {
             title: {
               display: website.pageViews.length === 0,

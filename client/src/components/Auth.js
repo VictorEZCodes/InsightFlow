@@ -1,4 +1,5 @@
 import { authAPI } from '../services/api.js';
+import config from '../config.js';
 
 export class Auth {
   constructor() {
@@ -163,21 +164,25 @@ export class Auth {
       const password = form.password.value;
 
       try {
-        const response = await (this.isLoginMode
-          ? authAPI.login(email, password)
-          : authAPI.register(email, password)
-        );
+        const response = await fetch(`${config.API_URL}/auth/${this.isLoginMode ? 'login' : 'register'}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
 
-        localStorage.setItem('token', response.data.token);
-        window.dispatchEvent(new Event('auth-changed'));
-        this.render();
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          window.dispatchEvent(new Event('auth-changed'));
+          this.render();
+        } else {
+          throw new Error(data.error);
+        }
       } catch (error) {
-        const errorMessage = error.response?.data?.error ||
-          (this.isLoginMode
-            ? 'Login failed. Please try again.'
-            : 'Registration failed. Please try again.');
-
-        this.showError(errorMessage);
+        console.error('Auth error:', error);
+        this.showError(error.message);
 
         // reset submit button
         submitButton.disabled = false;
@@ -206,7 +211,6 @@ export class Auth {
     errorDiv.classList.add('animate-fade-in');
     errorMessage.textContent = message;
 
-    // hide error after 5 seconds with fade-out animation
     setTimeout(() => {
       errorDiv.classList.add('animate-fade-out');
       setTimeout(() => {
