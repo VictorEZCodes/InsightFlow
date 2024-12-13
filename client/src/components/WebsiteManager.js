@@ -1,4 +1,5 @@
 import config from '../config.js';
+import { Toast } from './Toast.js';
 
 export class WebsiteManager {
   constructor() {
@@ -173,16 +174,21 @@ window.websiteManager = new WebsiteManager();
 
 // Add copyTrackingCode function
 window.copyTrackingCode = async (websiteId) => {
-  const code = `<script src="${config.API_URL}/tracking.js"></script>
+  const code = `<!-- InsightFlow Analytics -->
 <script>
-  InsightFlow.init("${websiteId}");
+  const script = document.createElement('script');
+  script.src = '${config.API_URL}/tracking.js';
+  script.onload = function() {
+    InsightFlow.init("${websiteId}");
+  };
+  document.body.appendChild(script);
 </script>`;
 
   try {
     await navigator.clipboard.writeText(code);
-    alert('Tracking code copied to clipboard!');
+    Toast.show('Tracking code copied to clipboard!', 'success');
   } catch (err) {
     console.error('Failed to copy code:', err);
-    alert('Failed to copy code. Please copy manually:\n\n' + code);
+    Toast.show('Failed to copy tracking code', 'error');
   }
 };
