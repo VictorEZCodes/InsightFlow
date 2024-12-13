@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Test Page</title>
+</head>
+
+<body>
+  <h1>Test Page</h1>
+
+  <div id="debug"></div>
+
+  <!-- Paste your tracking code here -->
+  <script src="http://localhost:3000/tracking.js"></script>
+  <script>
+    InsightFlow.init("cm4lw6glc0008yf7xsf5n6orc");
+
+
+
+
+    // Add this for debugging
+    document.getElementById('debug').innerHTML = `
+    <p>Current Path: ${window.location.pathname}</p>
+    <p>Referrer: ${document.referrer}</p>
+    `;
+  </script>
+</body>
+
+</html>
