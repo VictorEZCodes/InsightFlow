@@ -5,6 +5,11 @@ import { WebSocket, WebSocketServer } from 'ws';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.js';
 import analyticsRoutes from './routes/analytics.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const prisma = new PrismaClient();
 const app = express();
@@ -35,13 +40,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// Add this new route to serve tracking.js
+app.get('/api/tracking.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, '../public/tracking.js'));
+});
+
 // pageview endpoint with unique visitor tracking
 app.post('/api/analytics/:websiteId/pageview', async (req, res) => {
   try {
     const { websiteId } = req.params;
     const { visitorId, path, referrer, userAgent } = req.body;
 
-    // check if visitor has already viewed page in the last 24 hours
     const existingView = await prisma.pageView.findFirst({
       where: {
         websiteId,
@@ -53,7 +63,6 @@ app.post('/api/analytics/:websiteId/pageview', async (req, res) => {
       }
     });
 
-    // only create a new pageview if this is a unique view
     if (!existingView) {
       const pageView = await prisma.pageView.create({
         data: {
@@ -65,20 +74,17 @@ app.post('/api/analytics/:websiteId/pageview', async (req, res) => {
         }
       });
 
-      // add visitor to active visitors
       activeVisitors.set(visitorId, {
         ...req.body,
         lastSeen: new Date()
       });
 
-      // broadcast to all connected clients
       broadcast({
         type: 'pageview',
         visitorId,
         ...req.body
       });
 
-      // remove inactive visitors after 5 minutes
       setTimeout(() => {
         const visitor = activeVisitors.get(visitorId);
         if (visitor && Date.now() - visitor.lastSeen > 5 * 60 * 1000) {
@@ -100,7 +106,6 @@ app.post('/api/analytics/:websiteId/pageview', async (req, res) => {
   }
 });
 
-// endpoint for when visitors leave
 app.post('/api/analytics/:websiteId/leave', (req, res) => {
   const { visitorId } = req.body;
   if (visitorId && activeVisitors.has(visitorId)) {
