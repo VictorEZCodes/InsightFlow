@@ -3,39 +3,39 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
   password  String
-  hasPaid   Boolean  @default(false)
+  hasPaid   Boolean   @default(false)
   websites  Website[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Website {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
   domain    String
   pageViews PageView[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model PageView {
-  id        String   @id @default(cuid())
-  websiteId String
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  websiteId String    @db.ObjectId
   visitorId String   
   path      String
   referrer  String?
   userAgent String
-  createdAt DateTime @default(now())
-  website   Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  website   Website   @relation(fields: [websiteId], references: [id], onDelete: Cascade)
 
   @@index([websiteId])
   @@index([visitorId])
